@@ -581,6 +581,29 @@ $("goNew").onclick=()=>newShift(false);$("goPast").onclick=()=>setView("past");$
 $("addManual").onclick=()=>openEdit(-1);$("sendNew").onclick=()=>sync(false);$("sendAll").onclick=()=>sync(true);
 ["dept","shift","workdate","staff"].forEach(k=>$(k).addEventListener("change",()=>{save();renderSess()}));
 SHIFTS.forEach(a=>{const o=document.createElement("option");o.value=a[0];o.textContent=a[0]+"　"+a[1]+"〜"+shLabel(a[2]);$("shift").append(o)});
+
+/* 部署・勤務区分：端末（Safari）の選択表示が出ない場合に備え、アプリ内の一覧で選ぶ */
+(function(){
+ const ov=document.createElement("div");ov.className="ov hidden";ov.style.zIndex=80;
+ ov.innerHTML='<div class="box" style="width:min(520px,94vw);max-height:86dvh;display:flex;flex-direction:column;padding:12px"><div id="selT" style="font-weight:800;font-size:18px;margin-bottom:8px"></div><div id="selL" style="overflow:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:6px"></div><div class="row" style="justify-content:flex-end;margin-top:10px"><button type="button" id="selX" class="subtle" style="min-height:48px;font-size:17px">閉じる</button></div></div>';
+ document.body.append(ov);
+ const L=ov.querySelector("#selL"),T=ov.querySelector("#selT");
+ ov.querySelector("#selX").onclick=()=>ov.classList.add("hidden");
+ ov.addEventListener("click",e=>{if(e.target===ov)ov.classList.add("hidden")});
+ function open(sel,title){
+  if(sel.disabled)return;L.innerHTML="";T.textContent=title;
+  [...sel.options].forEach(o=>{if(o.value===""&&sel.id!=="dept")return;
+   const b=document.createElement("button");b.type="button";b.textContent=o.textContent;
+   b.style.cssText="min-height:52px;font-size:18px;font-weight:700;text-align:left;padding:8px 12px;border:2px solid "+(o.value===sel.value&&o.value!==""?"#0f7a52":"#c7d2dc")+";border-radius:10px;background:"+(o.value===sel.value&&o.value!==""?"#e3f4ec":"#fff")+";color:#10243a";
+   b.onclick=()=>{sel.value=o.value;ov.classList.add("hidden");sel.dispatchEvent(new Event("change",{bubbles:true}))};L.append(b)});
+  ov.classList.remove("hidden");
+  const cur=L.querySelector("button[style*='#0f7a52']");if(cur)cur.scrollIntoView({block:"center"})}
+ [["dept","部署を選んでください"],["shift","勤務区分を選んでください"]].forEach(([id,t])=>{
+  const sel=$(id),p=sel.parentNode;p.style.position="relative";sel.style.pointerEvents="none";
+  const c=document.createElement("button");c.type="button";c.setAttribute("aria-label",t);
+  c.style.cssText="position:absolute;left:0;right:0;bottom:0;height:56px;background:transparent;border:0;padding:0;z-index:2;cursor:pointer";
+  c.onclick=()=>open(sel,t);p.append(c)})
+})();
 load();checkRate();render();if(window._prov)setMsg("送信先を設定しました");
 setInterval(()=>{tick();if(active&&view==="work"&&!(started&&!ended))renderSum()},1000);
 </script>
