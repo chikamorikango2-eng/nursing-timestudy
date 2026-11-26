@@ -387,7 +387,9 @@ function renderSess(){
  $("saveInfo").textContent="保存済みの勤務：「"+tot+"」件";$("saveInfo").textContent="この端末に保存されている勤務："+tot+"件";
  $("gMsg").dataset.p=pend;if(!$("gMsg").dataset.m)$("gMsg").textContent=pend?"未送信："+pend+"件":"すべて送信済みです";
 }
-const sc=()=>{try{return JSON.parse(localStorage.getItem(SKEY)||"{}")}catch(e){return{}}};
+/* 送信先の初期設定：端末ごとの入力が無い場合に使われる。送信先URLを変えたときは、ここも書き換える。合言葉は、各端末の管理者設定で入れる。 */
+const PRESET={url:"https://script.google.com/macros/s/AKfycbzVQgNrmEWwLpOhnvdnP77mYDVIxE1OD712Mmd2n1cr6AJWCh5poYfK5DyL1FGPzRNx/exec",tok:""};
+const sc=()=>{let o={};try{o=JSON.parse(localStorage.getItem(SKEY)||"{}")||{}}catch(e){}const r=Object.assign({},o);if(!r.url)r.url=PRESET.url;if(!r.tok)r.tok=PRESET.tok;return r};
 function setMsg(m){$("gMsg").dataset.m=m;$("gMsg").textContent=m}
 const SHIFTS=[["日勤","8:30","17:00"],["1-9","12:30","21:00"],["公準深","20:30","33:00"],["準深","16:00","33:00"],["準夜","16:00","24:00"],["深夜","24:00","33:00"],["早出1","7:00","15:30"],["早出2","7:30","16:00"],["早出3","8:00","16:30"],["遅出1","9:00","17:30"],["遅出2","9:30","18:00"],["遅出3","10:00","18:30"],["遅出4","10:30","19:00"],["遅出5","11:00","19:30"]];
 const hm=h=>{const [a,b]=h.split(":");return +a*60+ +b};
